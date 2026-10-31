@@ -1,14 +1,11 @@
-import { addRequest, getAllRequests } from "../../../lib/requests";
+import { addRequest, getAllRequests, sortNewestFirst } from "../../../lib/requests";
 
 export const dynamic = "force-dynamic";
 
 // GET /api/requests — every request, newest first.
 export async function GET() {
   try {
-    const requests = await getAllRequests();
-    requests.sort(
-      (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
-    );
+    const requests = sortNewestFirst(await getAllRequests());
     return Response.json({ requests }, { status: 200 });
   } catch (error) {
     console.error("GET /api/requests failed:", error);
