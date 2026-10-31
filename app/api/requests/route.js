@@ -50,7 +50,7 @@ function validate({ requester_name, location, description, priority }) {
 
 // POST /api/requests — validate a new request on the server, then save it.
 // The browser form's dropdowns and character counter are only a convenience;
-// these checks are what actually keep bad data out of the CSV.
+// these checks are what actually keep bad data out of the database.
 export async function POST(request) {
   let body;
   try {
