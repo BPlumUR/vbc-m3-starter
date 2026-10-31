@@ -27,9 +27,33 @@ const LABELS = {
   priority: "Priority",
 };
 
-// POST /api/requests — save a new request and return it.
-// Full validation rules (allowed locations/priorities, length) come in the
-// validation step; for now we only make sure all four fields are filled in.
+const LOCATIONS = ["Minneapolis", "Chicago", "Denver", "Austin"];
+const PRIORITIES = ["Low", "Medium", "High", "Urgent"];
+const MAX_NAME_LENGTH = 100;
+const MAX_DESCRIPTION_LENGTH = 500;
+
+// Check the cleaned fields against the business rules. Returns a
+// plain-English error naming the field, or null if everything is valid.
+// Matching is exact (case-sensitive): "denver" is rejected.
+function validate({ requester_name, location, description, priority }) {
+  if (requester_name.length > MAX_NAME_LENGTH) {
+    return `Requester name must be ${MAX_NAME_LENGTH} characters or fewer (you entered ${requester_name.length}).`;
+  }
+  if (!LOCATIONS.includes(location)) {
+    return "Location must be Minneapolis, Chicago, Denver, or Austin.";
+  }
+  if (description.length > MAX_DESCRIPTION_LENGTH) {
+    return `Description must be ${MAX_DESCRIPTION_LENGTH} characters or fewer (you entered ${description.length}).`;
+  }
+  if (!PRIORITIES.includes(priority)) {
+    return "Priority must be Low, Medium, High, or Urgent.";
+  }
+  return null;
+}
+
+// POST /api/requests — validate a new request on the server, then save it.
+// The browser form's dropdowns and character counter are only a convenience;
+// these checks are what actually keep bad data out of the CSV.
 export async function POST(request) {
   let body;
   try {
@@ -48,9 +72,18 @@ export async function POST(request) {
     );
   }
 
+  // Rule 1: every field must be present, be text, and not be blank once
+  // leading/trailing spaces are trimmed.
   const cleaned = {};
   for (const field of FIELDS) {
-    const value = typeof body[field] === "string" ? body[field].trim() : "";
+    const raw = body[field];
+    if (raw !== undefined && raw !== null && typeof raw !== "string") {
+      return Response.json(
+        { error: LABELS[field] + " must be text." },
+        { status: 400 }
+      );
+    }
+    const value = typeof raw === "string" ? raw.trim() : "";
     if (!value) {
       return Response.json(
         { error: LABELS[field] + " is required." },
@@ -58,6 +91,12 @@ export async function POST(request) {
       );
     }
     cleaned[field] = value;
+  }
+
+  // Rules 2–5: length limits and allowed values.
+  const problem = validate(cleaned);
+  if (problem) {
+    return Response.json({ error: problem }, { status: 400 });
   }
 
   try {
