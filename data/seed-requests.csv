@@ -21,3 +21,4 @@ created_at,requester_name,location,description,priority,status
 2026-08-26T16:58:00Z,Grant Pemberton,Chicago,"Front entrance card reader is slow to respond, sometimes needs three taps",High,New
 2026-08-27T14:12:00Z,Sofia Marchetti,Denver,Request a second recycling pickup each week,Low,New
 2026-08-28T17:45:00Z,Alison Vo,Minneapolis,"Air conditioning in suite 220 is not cooling, staff moved to the open area",Urgent,New
+2026-10-31T15:48:34Z,Jordan Testwell,Denver,"Test request: replace the ""Exit"" sign bulb, 3rd floor east stairwell",High,New
